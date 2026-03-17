@@ -15,7 +15,7 @@ SAMPS = config['sample']
 # result file from the other samples that will trigger a new one
 res_file = 'results/{{sample}}/{{sample}}.{graph}.{realn}.snv_indels.g.vcf.gz.transferred'.format(graph=config['graph'], realn=config['bam_mode'])
 # The first file for the new sample
-new_sample_file = 'results/{{sample}}/{{sample}}.sra'
+new_sample_file = 'results/{sample}/{sample}.sra'
 if 'max_samps' in config and len(config['sample']) > config['max_samps']:
     # find which samples need to be processed
     SAMPS = []
