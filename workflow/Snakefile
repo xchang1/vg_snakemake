@@ -4,6 +4,7 @@ include: "rules/common.smk"
 include: "rules/index.smk"
 include: "rules/align.smk"
 include: "rules/call.smk"
+include: "rules/get_reads.smk"
 
 ## input GFA from config['gfa']?
 rule index_pangenome:

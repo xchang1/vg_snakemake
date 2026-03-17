@@ -47,22 +47,28 @@ if 'sample_tsv' in config:
     if len(config['sample']) == 0:
         config['sample'] = list(info['sample'])
 
-# rules to either get the files specified by the user, or path that will trigger rules to make them
-def getfq1(wildcards):
+def getfq1_from_sample(sample):
     # complain if sample not in the file
-    if 'fq1' not in info or wildcards.sample not in info.fq1:
+    if 'fq1' not in info or sample not in info.fq1:
         # print("Error: " + wildcards.sample + ' not in ' + config['sample_tsv'])
         return 'results/{sample}/{sample}.1.fastq.gz'
     # return fastq path for sample
-    return info.fq1[wildcards.sample]
+    return info.fq1[sample]
 
-def getfq2(wildcards):
+# rules to either get the files specified by the user, or path that will trigger rules to make them
+def getfq1(wildcards):
+    return getfq1_from_sample(wildcards.sample)
+
+def getfq2_from_sample(sample):
     # complain if sample not in the file
-    if 'fq2' not in info or wildcards.sample not in info.fq2:
+    if 'fq2' not in info or sample not in info.fq2:
         # print("Error: " + wildcards.sample + ' not in ' + config['sample_tsv'])
         return 'results/{sample}/{sample}.2.fastq.gz'
     # return fastq path for sample
-    return info.fq2[wildcards.sample]
+    return info.fq2[sample]
+
+def getfq2(wildcards):
+    return getfq2_from_sample(wildcards.sample)
 
 def getcram(wildcards):
     # complain if sample not in the file
@@ -129,6 +135,7 @@ docker_imgs['deepvariant'] = "docker://google/deepvariant:1.5.0"
 docker_imgs['deepvariant_gpu'] = "docker://google/deepvariant:1.5.0-gpu"
 docker_imgs['manta'] = "docker://quay.io/jmonlong/manta:main"
 docker_imgs['mosdepth'] = "docker://quay.io/biocontainers/mosdepth:0.3.6--hd299d5a_0"
+docker_imgs['sra-tools'] = "docker://ncbi/sra-tools"
 
 # if the user specified containers, change the default images
 if 'container' in config:

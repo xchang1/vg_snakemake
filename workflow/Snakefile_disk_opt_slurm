@@ -4,6 +4,7 @@ include: "rules/common.smk"
 include: "rules/index.smk"
 include: "rules/align.smk"
 include: "rules/call.smk"
+include: "rules/get_reads.smk"
 
 ## if we want to limit the number of samples being processed at a time (e.g. when disk space is limited)
 import os
@@ -24,13 +25,13 @@ if 'max_samps' in config and len(config['sample']) > config['max_samps']:
     for sampii, samp in enumerate(SAMPS):
         if sampii < config['max_samps']:
             # first sample don't depend on anything
-            bdep[info.fq1[samp]] = ''
-            bdep[info.fq2[samp]] = ''            
+            bdep[getfq1_from_sample(samp)] = ''
+            bdep[getfq2_from_sample(samp)] = ''            
         else:
             # save dependency and replace in list
             psamp = cur_samps.pop(0)
-            bdep[info.fq1[samp]] = res_file.format(sample=psamp)
-            bdep[info.fq2[samp]] = res_file.format(sample=psamp)
+            bdep[getfq1_from_sample(samp)] = res_file.format(sample=psamp)
+            bdep[getfq2_from_sample(samp)] = res_file.format(sample=psamp)
         cur_samps.append(samp)
 
 
