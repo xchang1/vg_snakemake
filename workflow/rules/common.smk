@@ -47,28 +47,23 @@ if 'sample_tsv' in config:
     if len(config['sample']) == 0:
         config['sample'] = list(info['sample'])
 
-def getfq1_from_sample(sample):
-    # complain if sample not in the file
-    if 'fq1' not in info or sample not in info.fq1:
-        # print("Error: " + wildcards.sample + ' not in ' + config['sample_tsv'])
-        return 'results/{sample}/{sample}.1.fastq.gz'
-    # return fastq path for sample
-    return info.fq1[sample]
-
 # rules to either get the files specified by the user, or path that will trigger rules to make them
 def getfq1(wildcards):
-    return getfq1_from_sample(wildcards.sample)
-
-def getfq2_from_sample(sample):
     # complain if sample not in the file
-    if 'fq2' not in info or sample not in info.fq2:
+    if 'fq1' not in info or wildcards.sample not in info.fq1:
         # print("Error: " + wildcards.sample + ' not in ' + config['sample_tsv'])
-        return 'results/{sample}/{sample}.2.fastq.gz'
+        return 'results/{wildcards.sample}/{wildcards.sample}.1.fastq.gz'
     # return fastq path for sample
-    return info.fq2[sample]
+    return info.fq1[wildcards.sample]
+
 
 def getfq2(wildcards):
-    return getfq2_from_sample(wildcards.sample)
+    # complain if sample not in the file
+    if 'fq2' not in info or wildcards.sample not in info.fq2:
+        # print("Error: " + wildcards.sample + ' not in ' + config['sample_tsv'])
+        return 'results/{wildcards.sample}/{wildcards.sample}.2.fastq.gz'
+    # return fastq path for sample
+    return info.fq2[wildcards.sample]
 
 def getcram(wildcards):
     # complain if sample not in the file

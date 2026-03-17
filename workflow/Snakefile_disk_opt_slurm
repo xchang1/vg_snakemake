@@ -14,6 +14,8 @@ bdep = {}
 SAMPS = config['sample']
 # result file from the other samples that will trigger a new one
 res_file = 'results/{{sample}}/{{sample}}.{graph}.{realn}.snv_indels.g.vcf.gz.transferred'.format(graph=config['graph'], realn=config['bam_mode'])
+# The first file for the new sample
+new_sample_file = 'results/{{sample}}/{{sample}}.sra'
 if 'max_samps' in config and len(config['sample']) > config['max_samps']:
     # find which samples need to be processed
     SAMPS = []
@@ -25,13 +27,11 @@ if 'max_samps' in config and len(config['sample']) > config['max_samps']:
     for sampii, samp in enumerate(SAMPS):
         if sampii < config['max_samps']:
             # first sample don't depend on anything
-            bdep[getfq1_from_sample(samp)] = ''
-            bdep[getfq2_from_sample(samp)] = ''            
+            bdep[new_sample_file.format(sample=psamp)] = ''
         else:
             # save dependency and replace in list
             psamp = cur_samps.pop(0)
-            bdep[getfq1_from_sample(samp)] = res_file.format(sample=psamp)
-            bdep[getfq2_from_sample(samp)] = res_file.format(sample=psamp)
+            bdep[new_sample_file.format(sample=psamp)] = res_file.format(sample=psamp)
         cur_samps.append(samp)
 
 
@@ -90,17 +90,25 @@ rule save_to_local_storage:
         """
 
 def condstart(wildcards):
-    fqfile = 'fastqs/{}'.format(wildcards.filen)
-    if fqfile in bdep and bdep[fqfile] != '':
-        return (bdep[fqfile])
+    srafile = 'results/{}/{}.sra'.format(wildcards.sample)
+    if srafile in bdep and bdep[srafile] != '':
+        return (bdep[srafile])
     else:
         return ([])
 
-rule get_fq:
+rule conditional_prefetch_sra:
     input: condstart
-    output: temp('fastqs/{filen}')
-    localrule: True
+    output:
+        sra=temp('results/{sample}/{sample}.sra')
+    threads: 1
+    resources:
+        mem_mb=100,
+        runtime=20
+    container: docker_imgs['sra-tools']
     shell:
         """
-        python3 transfer.run_genotoul.py -r download -g {output} -l {output}
+        prefetch {sample} -O results/
         """
+# Use this version instead of the one with no inputs
+ruleorder conditional_prefetch_sra > prefetch_sra
+
