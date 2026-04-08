@@ -1,16 +1,16 @@
 # Prefetch the data for one accession from sra
-rule prefetch_sra:
-    output:
-        sra=temp('results/{sample}/{sample}.sra')
-    threads: 1
-    resources:
-        mem_mb=100,
-        runtime=20
-    container: docker_imgs['sra-tools']
-    shell:
-        """
-        prefetch {sample} -O results/
-        """
+#rule prefetch_sra:
+#    output:
+#        sra=temp('results/{sample}/{sample}.sra')
+#    threads: 1
+#    resources:
+#        mem_mb=100,
+#        runtime=20
+#    container: docker_imgs['sra-tools']
+#    shell:
+#        """
+#        prefetch {wildcards.sample} -O results/
+#        """
 
 # Get the reads from SRA
 rule fasterq_dump_sra:
@@ -26,9 +26,9 @@ rule fasterq_dump_sra:
     container: docker_imgs['sra-tools']
     shell:
         """
-        fasterq-dump {sample} --outdir results/{sample}
-        mv results/{sample}/{sample}_1.fastq {output.fq1}
-        mv results/{sample}/{sample}_2.fastq {output.fq2}
+        fasterq-dump {wildcards.sample} --outdir results/{wildcards.sample}
+        mv results/{wildcards.sample}/{wildcards.sample}_1.fastq {output.fq1}
+        mv results/{wildcards.sample}/{wildcards.sample}_2.fastq {output.fq2}
         """
 
 # Get the reads from SRA

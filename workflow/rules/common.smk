@@ -52,7 +52,7 @@ def getfq1(wildcards):
     # complain if sample not in the file
     if 'fq1' not in info or wildcards.sample not in info.fq1:
         # print("Error: " + wildcards.sample + ' not in ' + config['sample_tsv'])
-        return 'results/{wildcards.sample}/{wildcards.sample}.1.fastq.gz'
+        return 'results/' + wildcards.sample + '/' + wildcards.sample + '.1.fastq.gz'
     # return fastq path for sample
     return info.fq1[wildcards.sample]
 
@@ -61,7 +61,7 @@ def getfq2(wildcards):
     # complain if sample not in the file
     if 'fq2' not in info or wildcards.sample not in info.fq2:
         # print("Error: " + wildcards.sample + ' not in ' + config['sample_tsv'])
-        return 'results/{wildcards.sample}/{wildcards.sample}.2.fastq.gz'
+        return 'results/' + wildcards.sample + '/' + wildcards.sample + '.2.fastq.gz'
     # return fastq path for sample
     return info.fq2[wildcards.sample]
 

@@ -13,7 +13,7 @@ import os
 bdep = {}
 SAMPS = config['sample']
 # result file from the other samples that will trigger a new one
-res_file = 'results/{{sample}}/{{sample}}.{graph}.{realn}.snv_indels.g.vcf.gz.transferred'.format(graph=config['graph'], realn=config['bam_mode'])
+res_file = 'results/{{sample}}/{{sample}}.{graph}.gt.minlen{minlen}.vcf.gz'.format(graph=config['graph'], minlen=config['gt_min_var_len'])
 # The first file for the new sample
 new_sample_file = 'results/{sample}/{sample}.sra'
 if 'max_samps' in config and len(config['sample']) > config['max_samps']:
@@ -27,11 +27,11 @@ if 'max_samps' in config and len(config['sample']) > config['max_samps']:
     for sampii, samp in enumerate(SAMPS):
         if sampii < config['max_samps']:
             # first sample don't depend on anything
-            bdep[new_sample_file.format(sample=psamp)] = ''
+            bdep[new_sample_file.format(sample=samp)] = ''
         else:
             # save dependency and replace in list
             psamp = cur_samps.pop(0)
-            bdep[new_sample_file.format(sample=psamp)] = res_file.format(sample=psamp)
+            bdep[new_sample_file.format(sample=samp)] = res_file.format(sample=psamp)
         cur_samps.append(samp)
 
 
@@ -90,7 +90,7 @@ rule save_to_local_storage:
         """
 
 def condstart(wildcards):
-    srafile = 'results/{}/{}.sra'.format(wildcards.sample)
+    srafile = 'results/{}/{}.sra'.format(wildcards.sample, wildcards.sample)
     if srafile in bdep and bdep[srafile] != '':
         return (bdep[srafile])
     else:
@@ -107,8 +107,8 @@ rule conditional_prefetch_sra:
     container: docker_imgs['sra-tools']
     shell:
         """
-        prefetch {sample} -O results/
+        prefetch {wildcards.sample} -O results/
         """
 # Use this version instead of the one with no inputs
-ruleorder conditional_prefetch_sra > prefetch_sra
+#ruleorder: conditional_prefetch_sra > prefetch_sra
 
