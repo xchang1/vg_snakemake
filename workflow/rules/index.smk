@@ -16,20 +16,21 @@ rule index_r_fullpg:
 
 rule index_distance_fullpg:
     input: getgbz()
-    output: 'results/pg/{graph}.dist'
-    benchmark: 'benchmark/{graph}.index_distance.benchmark.tsv'
+    output: getdist()
+    benchmark: getdist() + 'benchmark.tsv'
     container: docker_imgs['vg']
     shell: "vg index -j {output} {input}"
 
 rule index_minimizer_fullpg:
     input:
         gbz=getgbz(),
-        dist='results/pg/{graph}.dist'
+        dist=getdist()
     threads: 8
-    output: 'results/pg/{graph}.min'
-    benchmark: 'benchmark/{graph}.index_minimizer.benchmark.tsv'
+    output: 
+        min=getmin()
+    benchmark: getmin() + ".benchmark.tsv"
     container: docker_imgs['vg']
-    shell: "vg minimizer -t {threads} -d {input.dist} -o {output} {input.gbz}"
+    shell: "vg minimizer -t {threads} -d {input.dist} -o {output.min} {input.gbz}"
 
 
 rule index_haplotype_kmers:

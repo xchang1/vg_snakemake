@@ -25,9 +25,9 @@ if len(config['refsynt_fa']) > 0 and len(config['adapters_fa']) > 0 and len(conf
     rule map_short_reads_giraffe:
         input: 
             fq12="results/{sample}/{sample}.trimmed.fq.gz",
-            gbz="results/{sample}/{graph}.sample_pg.{sample}.gbz",
-            dist='results/{sample}/{graph}.sample_pg.{sample}.dist',
-            min='results/{sample}/{graph}.sample_pg.{sample}.min'
+            gbz=getgbz(),
+            dist=getdist(),
+            min=getmin(),
         output: tempCond("results/{sample}/{sample}.{graph}.gaf.gz")
         threads: 8
         priority: 2
@@ -73,9 +73,9 @@ else:
         input: 
             fq1=getfq1,
             fq2=getfq2,
-            gbz="results/{sample}/{graph}.sample_pg.{sample}.gbz",
-            dist='results/{sample}/{graph}.sample_pg.{sample}.dist',
-            min='results/{sample}/{graph}.sample_pg.{sample}.min'
+            gbz=getgbz(),
+            dist=getdist(),
+            min=getmin(),
         output: tempCond("results/{sample}/{sample}.{graph}.gaf.gz")
         threads: 8
         priority: 2
@@ -119,7 +119,7 @@ rule sample_haplotypes:
 
 rule surject_reads:
     input:
-        gbz="results/{sample}/{graph}.sample_pg.{sample}.gbz",
+        gbz=getgbz(),
         paths_list=config['ref_paths_list'],
         gaf="results/{sample}/{sample}.{graph}.gaf.gz",
         ref=getref(),
@@ -371,7 +371,7 @@ rule cram_to_fastq:
 rule gaf_to_sorted_gam:
     input:
         gaf="results/{sample}/{sample}.{graph}.gaf.gz",
-        gbz="results/{sample}/{graph}.sample_pg.{sample}.gbz"
+        gbz=getgbz()
     output:
         gam="results/{sample}/{sample}.{graph}.sorted.gam",
         gai="results/{sample}/{sample}.{graph}.sorted.gam.gai"

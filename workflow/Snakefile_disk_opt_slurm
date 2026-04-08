@@ -102,13 +102,14 @@ rule conditional_prefetch_sra:
         sra=temp('results/{sample}/{sample}.sra')
     threads: 1
     resources:
-        mem_mb=100,
+        mem_gb=20,
         runtime=20
-    container: docker_imgs['sra-tools']
     shell:
         """
         prefetch {wildcards.sample} -O results/
         """
+
+#container: docker_imgs['sra-tools']
 # Use this version instead of the one with no inputs
 #ruleorder: conditional_prefetch_sra > prefetch_sra
 

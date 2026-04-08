@@ -76,11 +76,37 @@ def getcram(wildcards):
 def getgbz():
     if 'gbz' in config:
         return config['gbz']
+    elif 'graph_base' in config:
+        return config['graph_base'] + ".gbz"
     else:
         if 'gfa' not in config:
             print("Error: neither 'gbz' nor 'gfa' are specified.")
         else:
             return "results/pg/{graph}.gbz"
+
+def getdist():
+    if 'dist' in config:
+        return config['dist']
+    elif 'graph_base' in config:
+        return config['graph_base'] + ".dist"
+    else:
+        return "results/pg/{graph}.dist"
+
+def getmin():
+    if 'min' in config:
+        return config['min']
+    elif 'graph_base' in config:
+        return config['graph_base'] + ".shortread.withzip.min"
+    else:
+        return "results/pg/{graph}.shortread.withzip.min"
+
+def getzips():
+    if 'zips' in config:
+        return config['zips']
+    elif 'graph_base' in config:
+        return config['graph_base'] + ".shortread.zipcodes"
+    else:
+        return "results/pg/{graph}.shortread.zipcodes"
 
 def gethapl():
     if 'hapl' in config:

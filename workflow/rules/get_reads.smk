@@ -1,7 +1,7 @@
 # Prefetch the data for one accession from sra
 #rule prefetch_sra:
 #    output:
-#        sra=temp('results/{sample}/{sample}.sra')
+#        sra='results/{sample}/{sample}.sra'
 #    threads: 1
 #    resources:
 #        mem_mb=100,
@@ -15,7 +15,7 @@
 # Get the reads from SRA
 rule fasterq_dump_sra:
     input:
-        sra=temp('results/{sample}/{sample}.sra')
+        sra='results/{sample}/{sample}.sra'
     output:
         fq1=temp('results/{sample}/{sample}.1.fastq'),
         fq2=temp('results/{sample}/{sample}.2.fastq')
@@ -23,7 +23,6 @@ rule fasterq_dump_sra:
     resources:
         mem_mb=800,
         runtime=30
-    container: docker_imgs['sra-tools']
     shell:
         """
         fasterq-dump {wildcards.sample} --outdir results/{wildcards.sample}
@@ -34,7 +33,7 @@ rule fasterq_dump_sra:
 # Get the reads from SRA
 rule gzip_reads:
     input:
-        fq=temp('results/{sample}/{sample}.{pair}.fastq'),
+        fq='results/{sample}/{sample}.{pair}.fastq',
     output:
         fq=temp('results/{sample}/{sample}.{pair}.fastq.gz'),
     threads: 1

@@ -1,6 +1,6 @@
 rule pack:
     input:
-        gbz="results/{sample}/{graph}.sample_pg.{sample}.gbz",
+        gbz=getgbz(),
         gaf="results/{sample}/{sample}.{graph}.gaf.gz"
     output: tempCond('results/{sample}/{sample}.{graph}.pack')
     threads: 8
@@ -34,7 +34,7 @@ if 'gt_ref' in config and config['gt_ref']:
 else:
     rule vgcall:
         input: 
-            gbz="results/{sample}/{graph}.sample_pg.{sample}.gbz",
+            gbz=getgbz(),
             paths_list=config['ref_paths_list'],
             pack='results/{sample}/{sample}.{graph}.pack'
         output: tempCond('results/{sample}/{sample}.{graph}.gt.minlen{minlen}.vcf.gz')
