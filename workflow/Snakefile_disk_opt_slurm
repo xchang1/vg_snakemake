@@ -11,7 +11,7 @@ import os
 
 # fake dependencies: for a fastq file, which result file does it "depend" on
 bdep = {}
-SAMPS = config['sample']
+SAMPS = sorted(config['sample'])
 # result file from the other samples that will trigger a new one
 res_file = 'results/{{sample}}/{{sample}}.{graph}.gt.minlen{minlen}.vcf.gz'.format(graph=config['graph'], minlen=config['gt_min_var_len'])
 # The first file for the new sample
@@ -20,11 +20,10 @@ if 'max_samps' in config and len(config['sample']) > config['max_samps']:
     # find which samples need to be processed
     SAMPS = []
     for samp in config['sample']:
-        if not os.path.isfile(res_file.format(sample=samp)):
-            SAMPS.append(samp)
+        SAMPS.append(samp)
     # force dependencies 
     cur_samps = []
-    for sampii, samp in enumerate(SAMPS):
+    for sampii, samp in enumerate(sorted(SAMPS)):
         if sampii < config['max_samps']:
             # first sample don't depend on anything
             bdep[new_sample_file.format(sample=samp)] = ''
@@ -45,14 +44,28 @@ rule map_short_reads:
     input:
         expand('results/{sample}.{sample}.{graph}.gaf.gz', graph=config['graph'], sample=SAMPS)
 
+## Merge the variants. This is defined here because SAMPS is only defined here
+rule merge_variants:
+    input:
+        vcfs=expand('results/{sample}/{sample}.{{graph}}.gt.minlen{{minlen}}.vcf.gz', sample=SAMPS),
+        csis=expand('results/{sample}/{sample}.{{graph}}.gt.minlen{{minlen}}.vcf.gz.csi', sample=SAMPS)
+    output: 'results/vg_call.{graph}.gt.minlen{minlen}.vcf.gz'
+    threads: 3
+    resources:
+        memory_gb=80,
+        runtime=120
+    shell:
+        """
+        bcftools merge --file-list <({input.vcfs}) -m id -Oz -o {output}
+        """
+
 ## input from columns 'fq1' and 'fq2' of the TSV specified by config['sample_tsv'] (and for samples listed in SAMPS)
 rule call_small_variants_from_short_reads:
     input:
         expand('results/{sample}/{sample}.{graph}.{realn}.snv_indels.vcf.gz', graph=config['graph'], sample=SAMPS, realn=config['bam_mode'])
-
-rule genotype_variants_from_short_reads:
-    input:
-        expand('results/{sample}/{sample}.{graph}.gt.minlen{minlen}.vcf.gz', graph=config['graph'], sample=SAMPS, minlen=config['gt_min_var_len'])
+ 
+rule genotype_variants_from_short_reads:       
+    input: expand('results/vg_call.{graph}.gt.minlen{minlen}.vcf.gz', graph=config['graph'], minlen=config['gt_min_var_len'])
 
 rule call_structural_variants_from_short_reads:
     input:
@@ -103,7 +116,7 @@ rule conditional_prefetch_sra:
     threads: 1
     resources:
         mem_gb=20,
-        runtime=20
+        runtime=60
     shell:
         """
         prefetch {wildcards.sample} -O results/
